@@ -22,6 +22,8 @@ df = df[ (df['value'] >= low_drop_limit ) & (df['value'] <= high_drop_limit ) ]
 # The title should be Daily freeCodeCamp Forum Page Views 5/2016-12/2019. 
 # The label on the x axis should be Date and the label on the y axis should be Page Views.
 
+#info>   https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html
+
 def draw_line_plot():
     # Draw line plot
     fig, ax = plt.subplots(figsize=(16,4))
@@ -40,18 +42,54 @@ def draw_line_plot():
 # The legend should show month labels and have a title of Months. On the chart, 
 # the label on the x axis should be Years and the label on the y axis should be Average Page Views.
 
+#info >  https://seaborn.pydata.org/generated/seaborn.barplot.html
+
+
 def draw_bar_plot():
-    # Copy and modify data for monthly bar plot
-    df_bar = None
+#     # Copy and modify data for monthly bar plot
+#     df_bar = None
+      df_bar = df.reset_index()
+      df_bar['year'] = df_bar['date'].str.split('-', expand=True)[0]
+      df_bar['month'] = df_bar['date'].str.split('-', expand=True)[1]
+      df_bar['Month'] = pd.to_datetime(df_bar['date']).dt.month_name()
 
-    # Draw bar plot
+      df_bar.drop(columns='date',inplace=True)
+
+      # now grouping by years and months, displaying then daily average(mean)
+      df_bar = df_bar.groupby(['year','month','Month']).mean().reset_index()
+      # df_bar.tail(13)
+
+#     # Draw bar plot
+      fig, ax = plt.subplots(figsize=(6, 6))
+      hueOrder = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+      # hueOrder = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+
+      # Draw the bar chart
+      sns.barplot(x='year', y='value', hue='Month', data=df_bar, ax=ax,
+                  hue_order=hueOrder,  palette = sns.color_palette(n_colors=12))
+
+      # Set labels and title
+      ax.set_xlabel('Years')
+      # ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
+      ax.tick_params(axis='x', labelrotation = 90)
+      ax.set_ylabel('Average Page Views')
+      ax.legend(title='Months')
+
+      # plt.show()
+#     # Save image and return fig (don't change this part)
+      fig.savefig('bar_plot.png')
+      return fig
 
 
-    # Save image and return fig (don't change this part)
-    fig.savefig('bar_plot.png')
-    return fig
+# Create a draw_box_plot function that uses Seaborn to draw two adjacent box plots 
+# similar to "examples/Figure_3.png". These box plots should show how the values are 
+# distributed within a given year or month and how it compares over time. 
+# The title of the first chart should be Year-wise Box Plot (Trend) and 
+# the title of the second chart should be Month-wise Box Plot (Seasonality). 
+# Make sure the month labels on bottom start at Jan and the x and y axis are labeled correctly. 
+# The boilerplate includes commands to prepare the data.
 
-
+#info > https://seaborn.pydata.org/generated/seaborn.boxplot.html
 
 def draw_box_plot():
     # Prepare data for box plots (this part is done!)
@@ -61,9 +99,6 @@ def draw_box_plot():
     df_box['month'] = [d.strftime('%b') for d in df_box.date]
 
     # Draw box plots (using Seaborn)
-
-
-
 
 
     # Save image and return fig (don't change this part)
